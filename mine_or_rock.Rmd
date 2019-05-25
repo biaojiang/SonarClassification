@@ -1,0 +1,64 @@
+---
+title: "Classify Sonar Targets between Mines and Rocks Using FFTrees"
+output:
+  html_document:
+    df_print: paged
+    number_sections: true
+---
+
+# Sonar data
+A data frame with 208 observations on 61 variables. The variables V1-V60 represent the energy within a certain frequency band, and are to be used as predictors. The variable 'mine.crit' is a class label, FALSE for 'rock' (97 observations) and TRUE for 'mine' (111 observations).
+
+## Reference
+Gorman, R. P., and Sejnowski, T. J. (1988). "Analysis of Hidden Units in a Layered Network Trained to Classify Sonar Targets" in Neural Networks, Vol. 1, pp. 75-89.
+
+# Classify Sonar Targets between Mines and Rocks Using FFTrees
+[FFTrees](https://github.com/ndphillips/FFTrees) is an R package to create and visualize fast-and-frugal decision trees (FFTs)
+
+## Load sonar data
+```{r load sonar data, echo=FALSE, message=FALSE}
+library(FFTrees)
+sonar
+```
+
+## Set FFTrees
+```{r}
+# Create FFTs from the sonar data
+set.seed(100) # For replicability of the training / test data split
+sonar.fft <- FFTrees(formula = mine.crit ~.,
+                         data = sonar,
+                         train.p = 1,      # Split data into 50\50 training \ test
+                         main = "Sonar",
+                         decision.labels = c("Rock", "Mine"))  
+```
+
+## Classification results
+### Training accuracies
+```{r}
+# look at the individual cue training accuracies:
+plot(sonar.fft, 
+     what = "cues")
+```
+
+### Best tree
+```{r}
+# plot the best tree
+plot(sonar.fft)
+#plot(sonar.fft, tree=3)
+```
+
+### Predict classes of test data
+```{r}
+sonar.fft.pred <- predict(sonar.fft, newdata=sonar)
+head(sonar.fft.pred)
+```
+
+### Predict class probabilities
+```{r}
+sonar.fft.pred <- predict(sonar.fft, newdata=sonar[1:15, ],
+                             type = "prob")
+head(sonar.fft.pred)
+```
+
+
+                            
